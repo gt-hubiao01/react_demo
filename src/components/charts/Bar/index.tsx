@@ -63,9 +63,6 @@ const Bar = (props: {
       }
 
       const option = {
-        title: {
-          text: 'World Population',
-        },
         tooltip: {
           trigger: 'axis',
           axisPointer: {
@@ -84,7 +81,21 @@ const Bar = (props: {
         },
         yAxis: {
           type: 'category',
-          data: ['Brazil', 'Indonesia', 'USA', 'India', 'China', 'World'],
+          axisLabel: {
+            width: 50,
+            overflow: 'truncate',
+            ellipsis: '...',
+          },
+          triggerEvent: true,
+
+          data: [
+            'Brazil',
+            'Indonesia11111111111111111111',
+            'USA',
+            'India',
+            'China',
+            'World',
+          ],
         },
         series: [
           {
@@ -103,68 +114,81 @@ const Bar = (props: {
         colors: colors,
       }
 
-      // 更改鼠标为pointer
-      const addBtn = (params: any) => {
+      // 鼠标悬浮在柱状图或空白处时更改label颜色
+      const changeCursorAndColor = (params: any, type: string) => {
         const pointInPixel = [params.offsetX, params.offsetY]
 
-        let yIndex
-        if (barChart.current?.containPixel('grid', pointInPixel)) {
-          yIndex = barChart.current.convertFromPixel(
-            {
-              seriesIndex: 0,
-            },
-            [params.offsetX, params.offsetY]
-          )[1]
-        }
-        const currentOption: any = barChart.current?.getOption()
-        if (yIndex === undefined || yIndex < 0) {
-          currentOption.series = [currentOption.series[0]]
-          barChart.current?.setOption(currentOption, true)
-          return
-        }
-
-        const pointInGrid = barChart.current?.convertFromPixel(
-          {
-            seriesIndex: 0,
-          },
-          pointInPixel
-        )
-        const pixelCoord = barChart.current?.convertToPixel(
+        const yIndex = barChart.current?.convertFromPixel(
           { seriesIndex: 0 },
-          [0, pointInGrid![1]]
-        )
+          pointInPixel
+        )[1]
 
-        const newSeries = [currentOption.series[0]].concat({
-          type: 'custom',
-          renderItem: function () {
-            // 返回箭头元素
-            return {
-              type: 'path',
-              x: pixelCoord![0] - 30, // 调整箭头 x 位置
-              y: pixelCoord![1] - 5, // 调整箭头 y 位置
-              shape: {
-                pathData: 'M 0 0 L 10 0 L 10 10 L 0 10 Z', // 箭头路径数据
-              },
-              focus: 'self',
-              style: {
-                fill: '#000', // 箭头默认颜色
-              },
-              emphasis: {
-                style: {
-                  fill: '#f00', // 鼠标悬浮时箭头颜色变化为红色
+        const newOption: any = barChart.current?.getOption()
+        const yAxisData = newOption.yAxis[0].data
+
+        const changeItem = () => {
+          barChart.current?.getZr().setCursorStyle('pointer')
+          newOption.yAxis[0].data = yAxisData.map(
+            (item: any, index: number) => {
+              return {
+                value: item.value || item,
+                textStyle: {
+                  color: index === yIndex ? 'red' : '',
                 },
-              },
+              }
             }
-          },
-          animation: false,
-          data: [{ name: 'operateBtn', value: 0 }],
-        })
-        currentOption.series = newSeries
-        barChart.current?.setOption(currentOption, true)
+          )
+        }
+
+        const recoverItem = () => {
+          newOption.yAxis[0].data = yAxisData.map((item: any) => {
+            return item.value || item
+          })
+        }
+
+        switch (type) {
+          case 'graph': {
+            if (barChart.current?.containPixel('grid', pointInPixel)) {
+              changeItem()
+            } else {
+              recoverItem()
+            }
+            break
+          }
+          case 'yAxis': {
+            if (
+              yIndex !== undefined &&
+              yIndex >= 0 &&
+              yIndex < yAxisData.length
+            ) {
+              changeItem()
+            } else {
+              recoverItem()
+            }
+          }
+        }
+
+        barChart.current?.setOption(newOption as any, true)
       }
 
-      barChart.current.getZr().off('mousemove', addBtn)
-      barChart.current.getZr().on('mousemove', addBtn)
+      const hoverOnGraph = (params: any) => {
+        changeCursorAndColor(params, 'graph')
+      }
+
+      barChart.current.getZr().off('mousemove', hoverOnGraph)
+      barChart.current.getZr().on('mousemove', hoverOnGraph)
+
+      const hoverOnYAxis = (params: any) => {
+        const xPixelOfZero = barChart.current?.convertToPixel(
+          { seriesIndex: 0 },
+          [0, 0]
+        )[0]
+        if (xPixelOfZero && params.offsetX > xPixelOfZero) return
+        changeCursorAndColor(params, 'yAxis')
+      }
+
+      barChart.current.getZr().off('mousemove', hoverOnYAxis)
+      barChart.current.getZr().on('mousemove', hoverOnYAxis)
 
       if (option && typeof option === 'object') {
         barChart?.current?.setOption(option)
