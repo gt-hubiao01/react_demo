@@ -114,7 +114,6 @@ const Bar = (props: {
         colors: colors,
       }
 
-      // 鼠标悬浮在柱状图或空白处时更改label颜色
       const changeCursorAndColor = (params: any, type: string) => {
         const pointInPixel = [params.offsetX, params.offsetY]
 
@@ -189,6 +188,47 @@ const Bar = (props: {
 
       barChart.current.getZr().off('mousemove', hoverOnYAxis)
       barChart.current.getZr().on('mousemove', hoverOnYAxis)
+
+      const clickOnGraph = (params: any) => {
+        const pointInPixel = [params.offsetX, params.offsetY]
+
+        if (barChart.current?.containPixel('grid', pointInPixel)) {
+          console.log('点击了柱子')
+        }
+      }
+
+      barChart.current.getZr().off('click', clickOnGraph)
+      barChart.current.getZr().on('click', clickOnGraph)
+
+      const clickOnYAxis = (params: any) => {
+        const pointInPixel = [params.offsetX, params.offsetY]
+
+        const xPixelOfZero = barChart.current?.convertToPixel(
+          { seriesIndex: 0 },
+          [0, 0]
+        )[0]
+
+        const yIndex = barChart.current?.convertFromPixel(
+          { seriesIndex: 0 },
+          pointInPixel
+        )[1]
+
+        const newOption: any = barChart.current?.getOption()
+        const yAxisData = newOption.yAxis[0].data
+
+        if (
+          yIndex !== undefined &&
+          yIndex >= 0 &&
+          yIndex < yAxisData.length &&
+          xPixelOfZero &&
+          params.offsetX < xPixelOfZero
+        ) {
+          console.log('点击了y轴标签')
+        }
+      }
+
+      barChart.current.getZr().off('click', clickOnYAxis)
+      barChart.current.getZr().on('click', clickOnYAxis)
 
       if (option && typeof option === 'object') {
         barChart?.current?.setOption(option)

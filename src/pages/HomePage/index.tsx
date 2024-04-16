@@ -10,6 +10,9 @@ function HomePage() {
       <Button type="primary" onClick={() => navigate('/echarts')}>
         Echarts Demo
       </Button>
+      <Button type="primary" onClick={() => navigate('/treeChart')}>
+        TreeChart Demo
+      </Button>
     </div>
   )
 }
