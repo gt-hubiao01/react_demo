@@ -90,18 +90,26 @@ const Bar = (props: {
           {
             name: '2011',
             type: 'bar',
-            data: [18203, 23489, 29034, 104970, 131744, 630230],
+            data: [
+              { name: 'Brazil', value: 10 },
+              { name: 'Indonesia', value: 20 },
+              { name: 'USA', value: 30 },
+              { name: 'India', value: 40 },
+              { name: 'China', value: 50 },
+              { name: 'World', value: 60 },
+            ],
           },
         ],
         colors: colors,
       }
 
       // 更改鼠标为pointer
-      const changeCursor = (params: any) => {
+      const addBtn = (params: any) => {
         const pointInPixel = [params.offsetX, params.offsetY]
 
+        let yIndex
         if (barChart.current?.containPixel('grid', pointInPixel)) {
-          const yIndex = barChart.current.convertFromPixel(
+          yIndex = barChart.current.convertFromPixel(
             {
               seriesIndex: 0,
             },
@@ -109,6 +117,12 @@ const Bar = (props: {
           )[1]
         }
         const currentOption: any = barChart.current?.getOption()
+        if (yIndex === undefined || yIndex < 0) {
+          currentOption.series = [currentOption.series[0]]
+          barChart.current?.setOption(currentOption, true)
+          return
+        }
+
         const pointInGrid = barChart.current?.convertFromPixel(
           {
             seriesIndex: 0,
@@ -119,8 +133,7 @@ const Bar = (props: {
           { seriesIndex: 0 },
           [0, pointInGrid![1]]
         )
-        console.log(pixelCoord)
-        // console.log(pointInGrid)
+
         const newSeries = [currentOption.series[0]].concat({
           type: 'custom',
           renderItem: function () {
@@ -132,6 +145,7 @@ const Bar = (props: {
               shape: {
                 pathData: 'M 0 0 L 10 0 L 10 10 L 0 10 Z', // 箭头路径数据
               },
+              focus: 'self',
               style: {
                 fill: '#000', // 箭头默认颜色
               },
@@ -140,18 +154,17 @@ const Bar = (props: {
                   fill: '#f00', // 鼠标悬浮时箭头颜色变化为红色
                 },
               },
-              onclick: function () {
-                console.log(`Arrow clicked at index ${api.value(0)}!`) // 点击箭头时的操作
-              },
             }
           },
-          data: [0],
+          animation: false,
+          data: [{ name: 'operateBtn', value: 0 }],
         })
         currentOption.series = newSeries
-        barChart.current?.setOption(currentOption)
+        barChart.current?.setOption(currentOption, true)
       }
-      barChart.current.getZr().off('mousemove', changeCursor)
-      barChart.current.getZr().on('mousemove', changeCursor)
+
+      barChart.current.getZr().off('mousemove', addBtn)
+      barChart.current.getZr().on('mousemove', addBtn)
 
       if (option && typeof option === 'object') {
         barChart?.current?.setOption(option)
