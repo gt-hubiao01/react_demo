@@ -40,7 +40,7 @@ function DepartmentTreeChart() {
 
   return (
     <div className={styles.treeContainer}>
-      <Tree data={orgChart} />
+      <Tree data={orgChart} initialDepth={1} />
     </div>
   )
 }

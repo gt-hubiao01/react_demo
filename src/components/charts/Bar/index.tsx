@@ -91,7 +91,7 @@ const Bar = (props: {
           data: [
             'Brazil',
             'Indonesia11111111111111111111',
-            'USA',
+            { value: 'USA', id: 333 },
             'India',
             'China',
             'World',
@@ -134,6 +134,7 @@ const Bar = (props: {
                 textStyle: {
                   color: index === yIndex ? 'red' : '',
                 },
+                id: 222,
               }
             }
           )
@@ -223,7 +224,7 @@ const Bar = (props: {
           xPixelOfZero &&
           params.offsetX < xPixelOfZero
         ) {
-          console.log('点击了y轴标签')
+          console.log(yAxisData[yIndex].id)
         }
       }
 
