@@ -1,9 +1,9 @@
 import React, { useEffect, useMemo, useRef } from 'react'
 import { init, use, EChartsType, getInstanceByDom } from 'echarts/core'
-import styles from './index.module.less'
+import styles from '../index.module.less'
 import { Spin } from 'antd'
 import EmptyIcon from '@/assets/accountEmpty.svg'
-import { colors } from './ColorMap'
+import { colors } from '../ColorMap'
 import { PieChart } from 'echarts/charts'
 import {
   TooltipComponent,

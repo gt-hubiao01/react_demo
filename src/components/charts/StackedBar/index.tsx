@@ -1,10 +1,10 @@
 import React, { useEffect, useRef } from 'react'
 import { init, use, EChartsType, dispose } from 'echarts/core'
-import styles from './index.module.less'
+import styles from '../index.module.less'
 import { Spin } from 'antd'
 import EmptyIcon from '@/assets/accountEmpty.svg'
 import { BarChart } from 'echarts/charts'
-import { colors } from './ColorMap'
+import { colors } from '../ColorMap'
 import {
   TooltipComponent,
   GridComponent,
