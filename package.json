@@ -12,11 +12,15 @@
   "dependencies": {
     "antd": "^5.16.2",
     "dayjs": "^1.11.10",
+    "dom-to-image": "^2.6.0",
     "echarts": "^5.5.0",
+    "html-to-image": "^1.11.11",
+    "html2canvas": "^1.4.1",
     "less": "^4.2.0",
     "react": "^18.2.0",
     "react-d3-tree": "^3.6.2",
     "react-dom": "^18.2.0",
+    "react-org-tree": "^1.0.1",
     "react-router-dom": "^6.22.3"
   },
   "devDependencies": {
