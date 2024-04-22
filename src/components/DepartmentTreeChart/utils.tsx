@@ -1,5 +1,8 @@
 const setInitialCollapsed = (node: any, depth: number) => {
   const newNode = { ...node }
+  // newNode.__rd3t = {
+  //   collapsed: depth <= 1 ? false : true,
+  // }
   newNode.collapsed = depth <= 1 ? false : true
 
   if (newNode.children) {
