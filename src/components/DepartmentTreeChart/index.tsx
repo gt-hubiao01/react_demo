@@ -3,6 +3,7 @@ import styles from './index.module.less'
 import Tree from 'react-d3-tree'
 import { getInitialTree } from './utils'
 import { Tooltip } from 'antd'
+// import { useNavigate } from 'react-router-dom'
 
 const orgChart = {
   name: '伍新春',
@@ -56,6 +57,8 @@ function DepartmentTreeChart() {
 
   const [departmentTree, setDepartmentTree] = useState(orgChart)
 
+  // const navigate = useNavigate()
+
   useEffect(() => {
     setDepartmentTree(getInitialTree(orgChart))
   }, [])
@@ -72,18 +75,18 @@ function DepartmentTreeChart() {
   const minusPath = (radius: number) => `M ${-radius / 2} 0 H ${radius / 2}`
 
   const renderCustomNodeElement = (rd3tProps: any) => {
-    const { nodeDatum, toggleNode } = rd3tProps
+    const { nodeDatum, toggleNode, addChildren } = rd3tProps
 
     const isLeaf = !(nodeDatum.children && nodeDatum.children.length > 0)
-    console.log(nodeDatum)
+    // console.log(nodeDatum)
+    // console.log(rd3tProps)
 
     // console.log(rd3tProps)
     return (
       // className={!nodeDatum.show ? styles.hideNode : ''}
       <g>
         <foreignObject
-          x={-72}
-          y={isLeaf ? -122 : -138}
+          transform={`translate(-72, -138)`}
           width="100%"
           height="100%"
         >
@@ -91,6 +94,7 @@ function DepartmentTreeChart() {
             className={styles.treeNodeBox}
             onClick={() => {
               console.log(nodeDatum)
+              addChildren([{ name: 'AddChild' }])
             }}
           >
             <div className={styles.aboveContent}>
@@ -115,7 +119,7 @@ function DepartmentTreeChart() {
           <g onClick={toggleNode}>
             <circle r={12} fill="white" stroke="#F26060" strokeWidth={2} />
             <path
-              d={nodeDatum.collapsed ? plusPath(12) : minusPath(12)}
+              d={nodeDatum.__rd3t.collapsed ? plusPath(12) : minusPath(12)}
               stroke="#F26060"
               strokeWidth={2}
             />
@@ -125,6 +129,19 @@ function DepartmentTreeChart() {
     )
   }
 
+  const customPathFunc = (linkDatum: any) => {
+    const { source, target } = linkDatum
+    const leafSubLength = target.height === 0 ? 16 : 0
+    const additionalBelowLength = 30 // 节点下方垂直线增加的长度
+    console.log(linkDatum)
+    // const
+
+    // 检查源节点和目标节点的位置
+
+    // 绘制连接线
+    return `M${source.x},${source.y + 15}H${target.x}V${target.y - leafSubLength}`
+  }
+
   return (
     <div className={styles.treeContainer} ref={containerRef}>
       <Tree
@@ -132,9 +149,11 @@ function DepartmentTreeChart() {
         // initialDepth={1}
         orientation="vertical"
         translate={translate}
-        pathFunc="step"
+        pathFunc={customPathFunc}
+        // pathFunc="step"
         separation={{ siblings: 1.5, nonSiblings: 1.5 }}
-        nodeSize={{ x: 144, y: 170 }}
+        // nodeSize={{ x: 144, y: 170 }}
+        depthFactor={180}
         // centeringTransitionDuration={500}
         enableLegacyTransitions={true}
         transitionDuration={500}
