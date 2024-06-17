@@ -2,7 +2,7 @@ import { useEffect, useState, useRef } from 'react'
 import styles from './index.module.less'
 import Tree from 'react-d3-tree'
 import { getInitialTree } from './utils'
-import { Tooltip } from 'antd'
+import { Button, Tooltip } from 'antd'
 // import { useNavigate } from 'react-router-dom'
 
 const orgChart = {
@@ -81,6 +81,11 @@ function DepartmentTreeChart() {
     // console.log(nodeDatum)
     // console.log(rd3tProps)
 
+    const clickToggleBtn = () => {
+      addChildren([{ name: 'AddChild' }])
+      toggleNode()
+    }
+
     // console.log(rd3tProps)
     return (
       // className={!nodeDatum.show ? styles.hideNode : ''}
@@ -94,7 +99,6 @@ function DepartmentTreeChart() {
             className={styles.treeNodeBox}
             onClick={() => {
               console.log(nodeDatum)
-              addChildren([{ name: 'AddChild' }])
             }}
           >
             <div className={styles.aboveContent}>
@@ -116,7 +120,7 @@ function DepartmentTreeChart() {
           </div>
         </foreignObject>
         {!isLeaf && (
-          <g onClick={toggleNode}>
+          <g onClick={clickToggleBtn}>
             <circle r={12} fill="white" stroke="#F26060" strokeWidth={2} />
             <path
               d={nodeDatum.__rd3t.collapsed ? plusPath(12) : minusPath(12)}
@@ -132,18 +136,29 @@ function DepartmentTreeChart() {
   const customPathFunc = (linkDatum: any) => {
     const { source, target } = linkDatum
     const leafSubLength = target.height === 0 ? 16 : 0
-    const additionalBelowLength = 30 // 节点下方垂直线增加的长度
-    console.log(linkDatum)
-    // const
+    const btnMoveLength = 15 // 展开收起按钮上移高度
 
     // 检查源节点和目标节点的位置
-
     // 绘制连接线
-    return `M${source.x},${source.y + 15}H${target.x}V${target.y - leafSubLength}`
+    return `M${source.x},${source.y + btnMoveLength}H${target.x}V${target.y - leafSubLength}`
   }
 
   return (
     <div className={styles.treeContainer} ref={containerRef}>
+      <Button
+        type="primary"
+        onClick={() => {
+          if (containerRef.current) {
+            const { width } = containerRef.current.getBoundingClientRect()
+            setTransLate((pre) => ({
+              x: width / 2,
+              y: pre.y === 140.5 ? 140 : 140.5,
+            }))
+          }
+        }}
+      >
+        归位
+      </Button>
       <Tree
         data={departmentTree}
         // initialDepth={1}
