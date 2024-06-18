@@ -11,8 +11,10 @@
   },
   "dependencies": {
     "@modify/react-d3-tree": "^1.1.6",
+    "@types/lodash": "^4.17.5",
     "@types/three": "^0.165.0",
     "antd": "^5.16.2",
+    "copy-to-clipboard": "^3.3.3",
     "dayjs": "^1.11.10",
     "dom-to-image": "^2.6.0",
     "echarts": "^5.5.0",
@@ -24,6 +26,7 @@
     "react-dom": "^18.2.0",
     "react-org-tree": "^1.0.1",
     "react-router-dom": "^6.22.3",
+    "screenfull": "^6.0.2",
     "three": "^0.165.0"
   },
   "devDependencies": {
