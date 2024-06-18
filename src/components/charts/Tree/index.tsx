@@ -1,231 +1,391 @@
-import React, { useEffect, useRef } from 'react'
-import { init, use, EChartsType, dispose } from 'echarts/core'
-import styles from '../index.module.less'
-import { Spin } from 'antd'
-import EmptyIcon from '@/assets/accountEmpty.svg'
-import { TreeChart, CustomChart } from 'echarts/charts'
 import {
-  TooltipComponent,
-  TitleComponent,
-  GridComponent,
-  LegendComponent,
-} from 'echarts/components'
-import { SVGRenderer } from 'echarts/renderers'
-import {
-  getInitialTree,
-  getFoldTree,
-  getHoverBtnTree,
-  getHoverBoxTree,
-  recoverHover,
-} from './util'
+  SyncOutlined,
+  ZoomInOutlined,
+  ZoomOutOutlined,
+} from '@ant-design/icons';
+import D3Tree from '@modify/react-d3-tree';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { minusPath, plusPath } from './icons';
+import './index.less';
+import { getAllInitialKeys } from './utils';
 
-use([
-  LegendComponent,
-  TitleComponent,
-  TreeChart,
-  CustomChart,
-  TooltipComponent,
-  GridComponent,
-  SVGRenderer,
-])
-
-export interface ChannelData {
-  [key: string]: number[]
+interface IProps {
+  title?: React.ReactNode; // 左上角的标题
+  dataKey?: string; // 用于标识树的唯一key
+  data: any; // 渲染数据
+  resetBtn?: boolean; // 是否要显示重置按钮
+  nodeSize?: { x: number; y: number }; // 节点大小
+  rootNodeSize?: { x: number; y: number }; // 节点大小
+  shouldCollapseNeighborNodes?: boolean; // 展开节点时是否折叠相邻节点
+  expandDepth?: number; // 展开深度
+  idKey: string; // 确定唯一节点的key
+  scaleExtent?: { max: number; min: number }; // 缩放范围
+  zoomableBtn?: boolean; // 是否要显示缩放按钮
+  zoomable?: boolean; // 是否可以缩放
+  zoomStep?: number; // 缩放步长
+  nodeContainer?: (children: any) => React.JSX.Element; // 自定义节点的容器
+  rooteNode?: (params: any) => React.ReactNode; // 自定义根节点
+  customNode?: (params: any) => React.ReactNode; // 完全自定义节点元素
+  expandBtnColor?: string; // 设置展开收起按钮颜色
+  expandBtnSize?: number; // 设置展开收起按钮大小
+  nodeColor?: string | ((params: any) => string); // 设置节点颜色
+  lineStyle?: string; // 设置连接线样式
+  clickNode?: (params: any) => void; // 点击节点事件
+  checkIsLeaf?: (params: any) => boolean; // 检查是否是叶子节点
+  data1?: (params: any) => string | React.ReactNode; // 设置第一排内容
+  data2?: (params: any) => string | React.ReactNode; // 设置第二排内容
+  data3?: (params: any) => string | React.ReactNode; // 设置第三排内容
+  data4?: (params: any) => string | React.ReactNode; // 设置第四排内容
+  asyncLoadData?: (params: any) => any; // 异步加载数据,若不传则默认为无需异步加载
+  collapseChildren?: boolean;
+  forbidWheel?: boolean; // 是否禁用默认滚轮事件
+  extraBtn?: React.ReactNode; // 额外的按钮,在右上角
 }
 
-const orgChart = {
-  name: '伍新春',
-  level: 'M8',
-  department: '效能效率中心',
-  leaveRate: '10.78%',
-  leaveCount: 12345,
-  isHigher: true,
-  children: [
-    {
-      name: 'Manager',
+function Tree(props: IProps) {
+  const {
+    title,
+    dataKey = 'my-react-d3-tree',
+    data,
+    resetBtn,
+    nodeSize = { x: 54, y: 167 },
+    rootNodeSize = { x: 144, y: 122 },
+    shouldCollapseNeighborNodes = true,
+    expandDepth = 1,
+    idKey,
+    scaleExtent = { max: 1.2, min: 0.3 },
+    zoomableBtn = true,
+    zoomable = false,
+    zoomStep = 0.1,
+    nodeContainer,
+    rooteNode,
+    customNode,
+    expandBtnColor,
+    expandBtnSize,
+    nodeColor,
+    lineStyle,
+    clickNode,
+    checkIsLeaf,
+    data1,
+    data2,
+    data3,
+    data4,
+    asyncLoadData,
+    collapseChildren,
+    forbidWheel = true,
+    extraBtn,
+  } = props;
 
-      children: [
-        {
-          name: 'Foreman',
-          children: [
-            {
-              name: 'Worker',
-              label: 'Worker',
-            },
-          ],
-        },
-        {
-          name: 'Foreman',
+  const [translate, setTransLate] = useState({ x: 0, y: 0 });
+  const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
+  const containerRef = useRef<HTMLDivElement>(null);
 
-          children: [
-            {
-              name: 'Worker',
-            },
-          ],
-        },
-      ],
-    },
-  ],
-}
+  const [zoom, setZoom] = useState(1);
 
-const Tree = (props: {
-  id: string
-  loading: boolean
-  data: { label: string; value: string }[]
-}): React.ReactElement => {
-  const { id, data, loading } = props
+  const scale = useMemo(() => Math.floor(zoom * 100) + '%', [zoom]);
 
-  const treeChart = useRef<EChartsType>()
+  // 存储toggleNode方法
+  const toggleNodeRef = useRef<any>(null);
 
-  const newTree = getInitialTree(orgChart)
+  // 已经加载过的数据key集合
+  const loadedDataSet = useRef(new Set());
+  // 控制异步请求时的loading
+  const loadingBtnId = useRef(new Set());
 
-  // const finalTree = useFinalTree(newTree)
+  const treeRef = useRef<any>(null);
 
   useEffect(() => {
-    const resizePie = () => {
-      setTimeout(() => {
-        treeChart?.current?.resize()
-      }, 100)
+    const keys = getAllInitialKeys(data, idKey);
+    keys.forEach((key) => {
+      loadedDataSet.current.add(key);
+    });
+  }, [data, idKey]);
+
+  useEffect(() => {
+    const resizeObserver = new ResizeObserver(() => {
+      if (containerRef.current) {
+        const isFullScreen = document.fullscreenElement !== null;
+
+        const { width, height } = containerRef.current?.getBoundingClientRect();
+        const nodeSizeY = nodeSize.y;
+        setTransLate({
+          x: width / 2,
+          y: isFullScreen ? height / 4 : nodeSizeY + 28,
+        });
+        setDimensions({
+          width,
+          height: isFullScreen ? height : (nodeSizeY + 28) * 2,
+        });
+      }
+    });
+
+    if (containerRef.current) {
+      resizeObserver.observe(containerRef.current);
     }
-    window.addEventListener('resize', resizePie)
+
+    // 在组件卸载时取消监听
     return () => {
-      window.removeEventListener('resize', resizePie)
+      if (containerRef.current) {
+        resizeObserver.unobserve(containerRef.current);
+      }
+    };
+  }, []);
+
+  const resetTree = () => {
+    if (treeRef.current) {
+      treeRef.current.resetToOrigin();
+      treeRef.current.resetToFirstLevel();
+      // resetToFirstLevel这个方法会重置缩放比例为1，为防止缩放比例状态不一致，在这里也需要将其重置为1
+      setZoom(1);
     }
-  }, [])
+  };
 
-  useEffect(() => {
-    const dom = document.getElementById(id) as HTMLElement
-    if (data.length > 0 && dom) {
-      // 先清除，再重新初始化
-      treeChart.current = undefined
-      dispose(dom)
-      if (!treeChart.current) {
-        treeChart.current = init(dom, undefined, {
-          renderer: 'svg',
-          useDirtyRect: false,
-        })
-      }
+  const setTreeZoom = (zoomLevel: number) => {
+    if (treeRef.current) {
+      treeRef.current.setZoom(zoomLevel);
+    }
+  };
 
-      const option = {
-        name: '组织架构资产一览图',
-        //提供数据视图、还原、下载的工具
-        tooltip: {
-          show: false,
-          trigger: 'item',
-          formatter: '{b}: {c}',
-        },
-        series: [
-          {
-            name: '组织架构一览图',
-            type: 'tree',
-            orient: 'vertical', //竖向或水平   TB代表竖向  LR代表水平
-            edgeShape: 'polyline', //控制折线的形式
-            top: '150',
-            expandAndCollapse: false, //点击节点时不收起子节点，default: true
+  const handleZoomIn = () => {
+    setTreeZoom(zoom + zoomStep);
+    setZoom((pre) => pre + zoomStep);
+  };
 
-            symbolSize: [16, 16],
-            emphasis: {
-              disabled: true,
-            },
+  const handleZoomOut = () => {
+    setTreeZoom(zoom - zoomStep);
+    setZoom((pre) => pre - zoomStep);
+  };
 
-            label: {
-              position: 'top',
-              borderWidth: 1,
-              borderRadius: 16,
-              width: 144,
-              height: 120,
-              borderColor: '#FF968A',
-              backgroundColor: '#fff',
-              formatter: () => {
-                return ''
-              },
-            },
-            labelLayout: {
-              moveOverlap: 'shiftX',
-            },
+  const customPathFunc = (linkDatum: any) => {
+    const { source, target } = linkDatum;
+    const leafSubLength = target.height === 0 ? 16 : 0;
+    const btnMoveLength = 30; // 展开收起按钮上移高度
 
-            lineStyle: {
-              color: '#D5D5D5',
-              width: 1,
-            },
-            roam: true,
-            data: [newTree],
-            animationDurationUpdate: 750,
-          },
-        ],
-      }
+    // 检查源节点和目标节点的位置
+    // 绘制连接线
+    return `M${source.x},${source.y}V${source.y + btnMoveLength}H${target.x}V${
+      target.y - leafSubLength
+    }`;
+  };
 
-      const clickOnGraph = (params: any) => {
-        const currentOption: any = treeChart.current?.getOption()
-        const currentData = currentOption.series[0].data[0]
-        if (params.event.target.type === 'image') {
-          currentOption.series[0].data[0] = getFoldTree(
-            currentData,
-            params.name
-          )
-          treeChart.current?.setOption(currentOption as any, true)
-        } else {
-          console.log(params.name)
+  const renderCustomNodeElement = (rd3tProps: any) => {
+    const { nodeDatum, toggleNode, addChildren } = rd3tProps;
+
+    if (!toggleNodeRef.current) {
+      toggleNodeRef.current = toggleNode;
+    }
+
+    const isRootNode = nodeDatum.__rd3t.depth === 0;
+
+    const newNodeSize = isRootNode ? rootNodeSize : nodeSize;
+
+    const isLeaf = checkIsLeaf
+      ? checkIsLeaf(nodeDatum)
+      : !(nodeDatum.children && nodeDatum.children.length > 0);
+
+    const clickToggleBtn = async () => {
+      toggleNode();
+
+      if (
+        !loadedDataSet.current.has(nodeDatum[idKey]) &&
+        asyncLoadData &&
+        nodeDatum.__rd3t.collapsed
+      ) {
+        loadingBtnId.current.add(nodeDatum.__rd3t.id);
+        loadedDataSet.current.add(nodeDatum[idKey]);
+        try {
+          const data = await asyncLoadData(nodeDatum);
+          addChildren(data);
+        } catch (error) {
+          console.error(error);
+          loadedDataSet.current.delete(nodeDatum[idKey]);
+        } finally {
+          loadingBtnId.current.delete(nodeDatum.__rd3t.id);
         }
       }
+    };
 
-      treeChart.current.off('click', clickOnGraph)
-      treeChart.current.on('click', clickOnGraph)
+    const newNodeColor =
+      typeof nodeColor === 'function' ? nodeColor(nodeDatum) : nodeColor;
 
-      const hoverOnGraph = (params: any) => {
-        // console.log(params)
-        const currentOption: any = treeChart.current?.getOption()
-        const currentData = currentOption.series[0].data[0]
-        if (params.event.target.type === 'image') {
-          currentOption.series[0].data[0] = getHoverBtnTree(
-            currentData,
-            params.name
-          )
-        } else {
-          currentOption.series[0].data[0] = getHoverBoxTree(
-            currentData,
-            params.name
-          )
-        }
-        treeChart.current?.setOption(currentOption as any, true)
-      }
-
-      treeChart.current.off('mousemove', hoverOnGraph)
-      treeChart.current.on('mousemove', hoverOnGraph)
-
-      const hoverOut = () => {
-        const currentOption: any = treeChart.current?.getOption()
-        const currentData = currentOption.series[0].data[0]
-        currentOption.series[0].data[0] = recoverHover(currentData)
-        treeChart.current?.setOption(currentOption as any, true)
-      }
-
-      treeChart.current.off('mouseout', hoverOut)
-      treeChart.current.on('mouseout', hoverOut)
-
-      if (option && typeof option === 'object') {
-        treeChart?.current?.setOption(option)
-      }
-    }
-  }, [id, data, newTree])
-
-  return loading ? (
-    <Spin className={styles.chartsSpinLoading} />
-  ) : (
-    <>
-      {data.length === 0 && !loading ? (
-        <div className={styles.empty}>
-          <img src={EmptyIcon} />
-          <span>暂无数据</span>
-        </div>
+    const nodeContent = isRootNode ? (
+      rooteNode ? (
+        rooteNode(nodeDatum)
       ) : (
-        <>
-          {/* <img src={finalTree.symbol} alt="" /> */}
-          <div className={styles.body} id={id}></div>
-        </>
-      )}
-    </>
-  )
+        <div
+          className="root-tree-node-box"
+          style={
+            {
+              '--node-color': newNodeColor || '#FF6F6F',
+            } as React.CSSProperties
+          }
+          onClick={() => {
+            clickNode && clickNode(nodeDatum);
+          }}
+        >
+          <div className="root-above-content">
+            <div className="root-above-content-above">
+              {data1 ? data1(nodeDatum) : nodeDatum?.department || ''}
+            </div>
+            <div className="root-above-content-below">
+              {data2
+                ? data2(nodeDatum)
+                : `${nodeDatum?.leaveMount || ''}(${
+                    nodeDatum?.leaveRate || ''
+                  })`}
+            </div>
+          </div>
+          <div className="root-below-content">
+            <div className="root-below-content-above">
+              {data3 ? data3(nodeDatum) : nodeDatum?.name || ''}
+            </div>
+            <div className="root-below-content-below">
+              {data4 ? data4(nodeDatum) : nodeDatum?.level || ''}
+            </div>
+          </div>
+        </div>
+      )
+    ) : customNode ? (
+      customNode(nodeDatum)
+    ) : (
+      <div
+        className="tree-node-box"
+        style={
+          {
+            '--node-color': newNodeColor || '#FF6F6F',
+          } as React.CSSProperties
+        }
+        onClick={() => {
+          clickNode && clickNode(nodeDatum);
+        }}
+      >
+        <div className="above-content">
+          <div className="above-content-above">
+            {data1 ? data1(nodeDatum) : nodeDatum?.department || ''}
+          </div>
+          <div className="above-content-below">
+            {data2
+              ? data2(nodeDatum)
+              : `${nodeDatum?.leaveMount || ''}(${nodeDatum?.leaveRate || ''})`}
+          </div>
+        </div>
+        <div className="below-content">
+          <div className="below-content-above">
+            {data3 ? data3(nodeDatum) : nodeDatum?.name || ''}
+          </div>
+          <div className="below-content-below">
+            {data4 ? data4(nodeDatum) : nodeDatum?.level || ''}
+          </div>
+        </div>
+      </div>
+    );
+
+    const finalNode = nodeContainer ? nodeContainer(nodeContent) : nodeContent;
+
+    return (
+      <g>
+        <foreignObject
+          transform={`translate(-${newNodeSize.x / 2}, -${newNodeSize.y + 16})`}
+          width={`${newNodeSize.x + 8 + 'px'}`}
+          height={`${newNodeSize.y + 8 + 'px'}`}
+        >
+          {finalNode}
+        </foreignObject>
+        {!isLeaf &&
+          (loadingBtnId.current.has(nodeDatum.__rd3t.id) ? (
+            <g className="spinner">
+              <circle
+                className="path"
+                r={expandBtnSize || 9}
+                fill="none"
+                stroke={expandBtnColor || '#F26060'}
+                strokeWidth="2"
+              />
+            </g>
+          ) : (
+            <g onClick={clickToggleBtn}>
+              <circle
+                r={expandBtnSize || 9}
+                fill="white"
+                stroke={expandBtnColor || '#F26060'}
+                strokeWidth={1.5}
+              />
+              <path
+                d={
+                  nodeDatum.__rd3t.collapsed
+                    ? plusPath(expandBtnSize || 9)
+                    : minusPath(expandBtnSize || 9)
+                }
+                stroke={expandBtnColor || '#F26060'}
+                strokeWidth={1.5}
+              />
+            </g>
+          ))}
+      </g>
+    );
+  };
+
+  const disabelZoomInBtn = useMemo(() => zoom >= scaleExtent.max, [zoom]);
+  const disabelZoomOutBtn = useMemo(
+    () => zoom <= scaleExtent.min + 0.1,
+    [zoom],
+  );
+
+  return (
+    <div className="tree-container" ref={containerRef}>
+      <div className="top-header-line">
+        <div className="top-header-line-left">{title}</div>
+        <div className="top-header-line-center">
+          <div className="operate-btns">
+            {zoomableBtn && (
+              <span className="zoom-btns">
+                <ZoomOutOutlined
+                  onClick={disabelZoomOutBtn ? undefined : handleZoomOut}
+                  className={`${disabelZoomOutBtn ? 'disabel-zoom-btn' : ''}`}
+                />
+                <span className="zoom-scale">{scale}</span>
+                <ZoomInOutlined
+                  onClick={disabelZoomInBtn ? undefined : handleZoomIn}
+                  className={`${disabelZoomInBtn ? 'disabel-zoom-btn' : ''}`}
+                />
+              </span>
+            )}
+            {resetBtn && (
+              <span className="reset-btn" onClick={resetTree}>
+                <SyncOutlined /> <span className="reset-btn-text">重置</span>
+              </span>
+            )}
+          </div>
+        </div>
+        <div className="top-header-line-right">{extraBtn}</div>
+      </div>
+      <div className="tree">
+        <D3Tree
+          nodeKey={idKey}
+          ref={treeRef}
+          dataKey={dataKey}
+          data={data}
+          dimensions={dimensions}
+          collapseChildren={collapseChildren}
+          orientation="vertical"
+          initialDepth={expandDepth}
+          translate={translate}
+          pathFunc={customPathFunc}
+          separation={{ siblings: 1.2, nonSiblings: 1.2 }}
+          depthFactor={nodeSize.y + 72}
+          nodeSize={nodeSize}
+          enableLegacyTransitions={true}
+          scaleExtent={scaleExtent}
+          transitionDuration={500}
+          pathClassFunc={() => lineStyle || 'default-line'}
+          shouldCollapseNeighborNodes={shouldCollapseNeighborNodes}
+          renderCustomNodeElement={renderCustomNodeElement}
+          zoomable={zoomable}
+          forbidWheel={forbidWheel}
+        />
+      </div>
+    </div>
+  );
 }
 
-export default Tree
+export default Tree;

@@ -10,6 +10,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@modify/react-d3-tree": "^1.1.6",
     "@types/three": "^0.165.0",
     "antd": "^5.16.2",
     "dayjs": "^1.11.10",

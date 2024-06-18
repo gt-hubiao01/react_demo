@@ -1,0 +1,191 @@
+.custom-rank-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+
+  .tips {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+
+    &-item {
+      .icon {
+        margin-right: 4px;
+      }
+
+      .text {
+        color: #000;
+        text-align: center;
+        font-family: 'PingFang SC';
+        font-size: 12px;
+        font-style: normal;
+        font-weight: 400;
+        line-height: 12px;
+        white-space: nowrap;
+      }
+    }
+  }
+
+  .list-title {
+    margin-top: 8px;
+  }
+
+  .list {
+    height: calc(100% - 65px);
+    border-bottom: 1px solid #ebebeb80;
+    margin-top: 8px;
+    overflow-y: auto;
+
+    // 设置滚动条的宽度
+    &::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    // 设置滚动条轨道的样式
+    &::-webkit-scrollbar-track {
+      background: #f1f1f1;
+    }
+
+    // 设置滚动条的样式
+    &::-webkit-scrollbar-thumb {
+      background: #888;
+      border-radius: 2px;
+    }
+
+    // 设置滚动条在鼠标悬停时的样式
+    &::-webkit-scrollbar-thumb:hover {
+      background: #555;
+    }
+
+    .list-items {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .average-container {
+      display: flex;
+      width: 100%;
+      align-items: center;
+      position: relative;
+      height: 16px;
+
+      .average-line {
+        z-index: 0;
+        width: 100%;
+        border-top: 1px dashed #f26060;
+      }
+
+      .line-text {
+        position: absolute;
+        font-family: 'PingFang SC';
+        font-size: 11px;
+        font-style: normal;
+        font-weight: 400;
+        line-height: 11px;
+        letter-spacing: -0.2px;
+        background-color: #fff;
+        padding: 0 4px;
+      }
+
+      .average-text {
+        right: 50%;
+        transform: translateX(50%);
+      }
+
+      .high-tip {
+        display: flex;
+        width: 9px;
+        justify-content: center;
+        position: absolute;
+        right: 12px;
+        bottom: 18px;
+        max-height: var(--high-max-height);
+        z-index: 9;
+      }
+      .low-tip {
+        text-align: center;
+        position: absolute;
+        top: 18px;
+        right: 12px;
+        max-height: var(--low-max-height);
+      }
+    }
+  }
+
+  .top-shadow {
+    box-shadow: 0 10px 10px -10px rgba(0, 0, 0, 0.1) inset;
+  }
+  .bottom-shadow {
+    box-shadow: 0 -10px 10px -10px rgba(0, 0, 0, 0.1) inset;
+  }
+
+  .both-shadow {
+    box-shadow: 0 10px 10px -10px rgba(0, 0, 0, 0.1) inset,
+      0 -10px 10px -10px rgba(0, 0, 0, 0.1) inset;
+  }
+
+  .current-rank-item {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    transform: translateY(8px);
+  }
+
+  .current-item-padding {
+    padding-right: 4px;
+  }
+}
+
+.list-item {
+  display: flex;
+  align-items: center;
+
+  .rank-icon {
+    width: 40px;
+
+    .order-icon {
+      width: 18px;
+      height: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      background-color: #ebebeb;
+      color: #333;
+      font-family: 'PingFang SC';
+      font-size: 13px;
+      font-style: normal;
+      font-weight: 600;
+      line-height: 13px;
+    }
+
+    .is-active {
+      background-color: #f26060;
+      color: #fff;
+    }
+  }
+
+  .item-content {
+    flex: 1;
+
+    .content {
+      color: #333;
+      font-family: 'PingFang SC';
+      font-size: 12px;
+      font-style: normal;
+      font-weight: 500;
+      line-height: 12px;
+    }
+    .title {
+      color: #999;
+      font-weight: 400;
+    }
+
+    .is-active {
+      color: #f26060;
+    }
+  }
+}

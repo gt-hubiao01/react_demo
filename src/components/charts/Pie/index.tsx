@@ -1,176 +1,135 @@
-import React, { useEffect, useMemo, useRef } from 'react'
-import { init, use, EChartsType, getInstanceByDom } from 'echarts/core'
-import styles from '../index.module.less'
-import { Spin } from 'antd'
-import EmptyIcon from '@/assets/accountEmpty.svg'
-import { colors } from '../ColorMap'
-import { PieChart } from 'echarts/charts'
+import { PieChart } from 'echarts/charts';
 import {
-  TooltipComponent,
   GridComponent,
   LegendComponent,
-} from 'echarts/components'
-import { SVGRenderer } from 'echarts/renderers'
+  TooltipComponent,
+} from 'echarts/components';
+import { EChartsType, getInstanceByDom, init, use } from 'echarts/core';
+import { LabelLayout } from 'echarts/features';
+import { SVGRenderer } from 'echarts/renderers';
+import React, { useEffect, useImperativeHandle, useRef } from 'react';
+import './index.less';
+import { getOption } from './option';
 
-use([LegendComponent, PieChart, TooltipComponent, GridComponent, SVGRenderer])
+use([
+  LegendComponent,
+  PieChart,
+  TooltipComponent,
+  GridComponent,
+  SVGRenderer,
+  LabelLayout,
+]);
 
-interface CategoryData {
-  type: string
-  name: string
-  value: number
+type PieConfigType = {
+  // 对饼图的label进行设置
+  label: {
+    // label文字是否需要换行
+    needWrap: boolean;
+    // label文字的具体formatter函数
+    formatter: (params: any) => string;
+  };
+  // 对原始数据进行格式化的函数
+  dataformatter?: (data: any) => any;
+  // 饼图的tooltip格式化函数
+  tooltipFormatter: (params: any) => any;
+  // 是否是环形图，及环形图的配置
+  isRing: {
+    // 环形图中间label的标题
+    title: string;
+    // 环形图中间label值的单位
+    unit: string;
+    // 环形图中间label值，当可以前端计算时使用
+    getValue: (data: any) => number | string;
+  };
+  // 环形图中间的值，例如请求后端接口获取到的值
+  centerValue?: number | string;
+  // tooltip是否要挂载到body上
+  appendToBody?: boolean;
+};
+
+interface IProps {
+  id: string;
+  data: any[] | any;
+  config: PieConfigType;
+  clickEvent?: (params: any) => void;
 }
 
-const Pie = (props: {
-  id: string
-  loading: boolean
-  data: CategoryData[]
-  legendData?: { label: string; value: string }[]
-  onClickPie?:
-    | ((type: string) => void)
-    | (({ label, value }: { label: string; value: string }) => void)
-  clickLabel?: boolean
-}): React.ReactElement => {
-  const {
-    id,
-    data = [],
-    legendData = [],
-    loading,
-    onClickPie,
-    clickLabel,
-  } = props
+const Pie = React.forwardRef((props: IProps, ref): React.ReactElement => {
+  const { id, data, config, clickEvent } = props;
 
-  const myPieChart = useRef<EChartsType>()
+  const pieChart = useRef<EChartsType>();
+  let observer: any = null;
+
+  const pieDomRef = useRef<HTMLDivElement>(null);
+
+  const setCursorDefault = (params: any) => {
+    if (params.seriesIndex === 1) {
+      pieChart.current && pieChart.current.getZr().setCursorStyle('default');
+    }
+  };
+
+  const clickPie = (params: any) => {
+    if (params.componentIndex !== 0) return;
+    const { data } = params;
+
+    if (pieChart.current) {
+      pieChart.current.dispatchAction({
+        type: 'hideTip',
+      });
+    }
+    clickEvent && clickEvent(data);
+  };
+
+  useImperativeHandle(ref, () => ({
+    getInstance: () => {
+      return pieChart.current;
+    },
+  }));
 
   useEffect(() => {
-    const resizePie = () => {
-      setTimeout(() => {
-        myPieChart?.current?.resize()
-      }, 100)
-    }
-    window.addEventListener('resize', resizePie)
-    return () => {
-      window.removeEventListener('resize', resizePie)
-    }
-  }, [])
-
-  const cData = useMemo(() => {
-    if (data.length > 0 && legendData.length > 0) {
-      return legendData
-        .map(({ value }) => {
-          const item = data.find(({ type }) => type === value) as CategoryData
-          return item
-        })
-        .filter(Boolean)
-    }
-    return data
-  }, [data, legendData])
-
-  useEffect(() => {
-    const dom = document.getElementById(id) as HTMLElement
-    if (cData.length > 0 && dom) {
-      myPieChart.current = getInstanceByDom(dom)
-      if (!myPieChart.current) {
-        myPieChart.current = init(dom, undefined, {
+    if (Array.isArray(data) && data.length > 0 && pieDomRef.current) {
+      pieChart.current = getInstanceByDom(pieDomRef.current);
+      if (!pieChart.current) {
+        pieChart.current = init(pieDomRef.current, undefined, {
           renderer: 'svg',
           useDirtyRect: false,
-        })
+        });
       }
 
-      const option = {
-        tooltip: {
-          trigger: 'item',
-          textStyle: {
-            fontSize: 12,
-            fontWeight: 400,
-          },
-        },
-        legend: {
-          data: cData
-            .map(({ value, name }) => (value > 0 ? name : undefined))
-            .filter(Boolean),
-          padding: 0,
-          left: 'center',
-          icon: 'circle',
-          itemGap: 30,
-          itemWidth: 15,
-          textStyle: {
-            color: '#2C3542A6',
-            fontSize: 12,
-            fontWeight: 400,
-          },
-          type: 'scroll',
-          orient: 'horizontal',
-          right: 0,
-          bottom: 10,
-        },
-        series: [
-          {
-            type: 'pie',
-            radius: ['33.6%', '55%'],
-            percentPrecision: 1,
-            data: cData.filter(({ value }) => value > 0),
-            emphasis: {
-              itemStyle: {
-                shadowBlur: 10,
-                shadowOffsetX: 0,
-                shadowColor: 'rgba(0, 0, 0, 0.5)',
-              },
-            },
-            label: {
-              formatter: '{b}: {d}%',
-              color: '#000000A6',
-              fontWeight: 400,
-              fontSize: 12,
-            },
-            center: ['50%', '45%'],
-            top: 0,
-            bottom: 0,
-            tooltip: {
-              borderWidth: 0,
-              formatter: '{b}: {c} ({d}%)',
-            },
-            minShowLabelAngle: 8,
-          },
-        ],
-        color: colors,
+      pieChart?.current?.setOption(
+        getOption({
+          data,
+          config,
+          chartInstance: pieChart.current,
+        }),
+        true,
+      );
+
+      // 环形图时，需要设置鼠标悬浮到中间的label上时为默认样式
+      if (pieChart.current && config.isRing) {
+        pieChart.current.on('mousemove', setCursorDefault);
       }
 
-      if (option && typeof option === 'object') {
-        myPieChart?.current?.setOption(option)
+      if (clickEvent) {
+        pieChart.current.on('click', clickPie);
       }
 
-      myPieChart.current.off('click')
-      myPieChart.current.on('click', (params: any) => {
-        const { data } = params
-        if (clickLabel) {
-          onClickPie &&
-            onClickPie({ label: data.name, value: data.type } as unknown as {
-              label: string
-              value: string
-            } & string)
-        } else {
-          onClickPie && onClickPie(data.type)
-        }
-      })
+      observer = new ResizeObserver(() => {
+        pieChart?.current?.resize();
+      });
+      observer.observe(pieDomRef.current);
     }
-  }, [id, cData, onClickPie, legendData, clickLabel])
+    return () => {
+      pieChart.current?.off('mousemove', setCursorDefault);
+      pieChart.current?.off('click', clickPie);
 
-  return loading ? (
-    <Spin className={styles.chartsSpinLoading} />
-  ) : (
-    <>
-      {cData.length === 0 && !loading ? (
-        <>
-          <div className={styles.empty}>
-            <img src={EmptyIcon} />
-            <span>暂无数据</span>
-          </div>
-        </>
-      ) : (
-        <div className={styles.body} id={id}></div>
-      )}
-    </>
-  )
-}
+      if (observer) {
+        observer.disconnect();
+      }
+    };
+  }, [data, config]);
 
-export default Pie
+  return <div id={id} ref={pieDomRef} className="body" />;
+});
+
+export default Pie;
