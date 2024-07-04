@@ -7,6 +7,9 @@ function HomePage() {
 
   return (
     <div className={styles.homePageContainer}>
+      <Button type="primary" onClick={() => navigate('/demo')}>
+       Demo
+      </Button>
       <Button type="primary" onClick={() => navigate('/echarts')}>
         Echarts Demo
       </Button>
