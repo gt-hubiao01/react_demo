@@ -9,16 +9,28 @@
     .box {
       width: 200px;
       height: 200px;
+      background-color: red;
     }
     .inner {
-      width: 100%;
-      height: 100%;
-      padding: 10px;
+      width: 100px;
+      height: 100px;
+      background-color: skyblue;
     }
   </style>
+  <script>
+    const clickBox = (e) => {
+      console.log('click box');
+    }
+
+    const clickInner = (e) => {
+      // e.stopPropagation();
+      console.log('click inner');
+    }
+
+  </script>
   <body>
-    <div class="box">
-      <div class="inner"></div>
+    <div class="box" onclick="clickBox(event)">
+      <div class="inner" onclick="clickInner(event)"></div>
     </div>
   </body>
 </html>

@@ -3,6 +3,7 @@ import HomePage from '@/pages/HomePage'
 import EchartsDemo from '@/pages/EchartsDemo'
 import TreeChartDemo from '@/pages/TreeChartDemo'
 import ThreeJsDemo from './pages/ThreeJsDemo'
+import TfjsDemo from './pages/TfjsDemo'
 import Demo from './pages/Demo'
 
 function App() {
@@ -13,7 +14,8 @@ function App() {
         <Route path="/echarts" element={<EchartsDemo />} />
         <Route path="/treeChart" element={<TreeChartDemo />} />
         <Route path="/threejs" element={<ThreeJsDemo />} />
-        <Route path="/demo" element={<Demo />} />
+        <Route path="/tfjs" element={<TfjsDemo />} />
+        <Route path="/demo/*" element={<Demo />} />
       </Routes>
     </BrowserRouter>
   )

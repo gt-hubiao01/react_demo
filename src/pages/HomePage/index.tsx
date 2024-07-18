@@ -8,13 +8,16 @@ function HomePage() {
   return (
     <div className={styles.homePageContainer}>
       <Button type="primary" onClick={() => navigate('/demo')}>
-       Demo
+        Demo
       </Button>
       <Button type="primary" onClick={() => navigate('/echarts')}>
         Echarts Demo
       </Button>
       <Button type="primary" onClick={() => navigate('/treeChart')}>
         TreeChart Demo
+      </Button>
+      <Button type="primary" onClick={() => navigate('/tfjs')}>
+        TfjsDemo
       </Button>
     </div>
   )

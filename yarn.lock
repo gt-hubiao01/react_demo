@@ -675,6 +675,13 @@
   resolved "https://registry.npmmirror.com/@rollup/rollup-win32-x64-msvc/-/rollup-win32-x64-msvc-4.14.2.tgz#5d2d9dc96b436469dc74ef93de069b14fb12aace"
   integrity sha512-teAqzLT0yTYZa8ZP7zhFKEx4cotS8Tkk5XiqNMJhD4CpaWB1BHARE4Qy+RzwnXvSAYv+Q3jAqCVBS+PS+Yee8Q==
 
+"@tensorflow-models/face-landmarks-detection@^1.0.5":
+  version "1.0.5"
+  resolved "https://npm.baijia.com/@tensorflow-models%2fface-landmarks-detection/-/face-landmarks-detection-1.0.5.tgz#ef2e6f03e329d9457afbe7fdbf76fa8bd1e54fc1"
+  integrity sha512-54XJPi8g29/MknJ33ZBrLsEzr9kw/dJtrJMMD3xrCrnRlfFQPIKQ5PI2Wml55Fz2p4U2hemzBB0/H+S94JddIQ==
+  dependencies:
+    rimraf "^3.0.2"
+
 "@tensorflow/tfjs-backend-cpu@4.20.0":
   version "4.20.0"
   resolved "https://npm.baijia.com/@tensorflow%2ftfjs-backend-cpu/-/tfjs-backend-cpu-4.20.0.tgz#7cc7a31fd91950a0d4d1e922c8e9a8f7e7a3e2cc"
