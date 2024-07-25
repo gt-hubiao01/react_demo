@@ -14,8 +14,10 @@
     "@tensorflow-models/face-landmarks-detection": "^1.0.5",
     "@tensorflow/tfjs": "^4.20.0",
     "@types/lodash": "^4.17.5",
+    "@types/react-virtualized": "^9.21.30",
     "@types/three": "^0.165.0",
     "antd": "^5.16.2",
+    "antd-mobile": "^5.37.1",
     "copy-to-clipboard": "^3.3.3",
     "dayjs": "^1.11.10",
     "dom-to-image": "^2.6.0",
@@ -28,7 +30,9 @@
     "react-dom": "^18.2.0",
     "react-org-tree": "^1.0.1",
     "react-router-dom": "^6.22.3",
+    "react-virtualized": "^9.22.5",
     "screenfull": "^6.0.2",
+    "tesseract.js": "^5.1.0",
     "three": "^0.165.0"
   },
   "devDependencies": {

@@ -6,31 +6,48 @@
     <title>Document</title>
   </head>
   <style>
-    .box {
-      width: 200px;
-      height: 200px;
-      background-color: red;
-    }
-    .inner {
-      width: 100px;
+    .up {
+      width: 100%;
       height: 100px;
-      background-color: skyblue;
+      background-color: rgb(221, 202, 119);
+    }
+    .container {
+      height: 700px;
+      width: 100%;
+      overflow-y: auto;
+    }
+
+    .title {
+      width: 100%;
+      height: 50px;
+      background-color: rgb(83, 83, 166);
+      position: sticky;
+      top: 0;
+    }
+    .tabs {
+      width: 100%;
+      height: 50px;
+      background-color: rgb(121, 224, 121);
+      top: 50px;
+      position: sticky;
+    }
+    .box {
+      height: 4000px;
+      background-color: rgb(224, 113, 113);
     }
   </style>
   <script>
-    const clickBox = (e) => {
-      console.log('click box');
-    }
-
-    const clickInner = (e) => {
-      // e.stopPropagation();
-      console.log('click inner');
-    }
-
+    const clickUp = () => {
+      const up = document.querySelector('.up');
+      up.style.height = '200px';
+    };
   </script>
   <body>
-    <div class="box" onclick="clickBox(event)">
-      <div class="inner" onclick="clickInner(event)"></div>
+    <div class="up" onclick="clickUp()"></div>
+    <div class="container">
+      <div class="title"></div>
+      <div class="tabs"></div>
+      <div class="box"></div>
     </div>
   </body>
 </html>

@@ -1,0 +1,48 @@
+.infinite-scroll-v-list {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow-y: auto;
+
+  .ant-mobile-list {
+    --border-bottom: 0px;
+    --border-inner: 0px;
+    --border-top: 0px;
+
+    :global {
+      .adm-list-item {
+        padding: 0;
+
+        .adm-list-item-content {
+          padding: 0;
+
+          .adm-list-item-content-main {
+            padding: 0;
+          }
+        }
+      }
+    }
+  }
+}
+
+.loading-more-tip {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+
+  .loading {
+    color: #f2605e;
+    font-size: 14px;
+  }
+
+  .noMore {
+    .line {
+      width: 56px;
+      height: 1px;
+      background-color: #ccc;
+      display: inline-block;
+      vertical-align: middle;
+      margin: 0 12px;
+    }
+  }
+}

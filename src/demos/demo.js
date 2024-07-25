@@ -1,37 +1,7 @@
-const defaultPageConfig = [
-  {
-    title: '团队数量',
-    config: [
-      {
-        title: '当前在职员工数',
-        key: 'currentEmployee',
-        metrics: [],
-        tag: '',
-        ... // 其他配置
-  
-        subCards: [
-          {
-            title: '当前待入职人数',
-            key: 'currentToBeHired',
-            ... // 其他配置
-          }
-        ]
-      },
-      {
-        ... // 第二块配置，如累计离职率
-      }
-    ]
+const getRadius = (size) => Math.sqrt((size / 2) ** 2 * 2)
 
-  }, {
-    title: '团队结构',
-    config: [
-      {
-        title: '当前老新员工比',
-        key: 'currentOldNewEmployee',
-        ... // 其他配置
-      },
-      ...
+// const radians = (bgColorAngle * Math.PI) / 180
 
-    ]
-  }
-]
+const getSin = (angle) => Math.sin((angle * Math.PI) / 180)
+
+console.log(getSin(158))

@@ -1,19 +1,34 @@
-import { generateAvatar } from '@/utils/generateAvatar'
-import { useEffect, useState } from 'react'
 
-export default function Demo() {
-  const [avatar, setAvatar] = useState<string>('')
+import { Button } from 'antd';
+import { useEffect } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
+
+const Item = () => {
+
+  const {pathname} = useLocation()
+
 
   useEffect(() => {
-    const avatar = generateAvatar('企')
-    setAvatar(avatar)
-  }, [])
+    console.log('Item挂载')
 
+    return () => {
+      console.log('Item卸载')
+    }
+  },[pathname])
+
+  return <div>这是Item</div>
+}
+
+
+export default () => {
+
+  const navigate = useNavigate()
 
   return (
     <>
-      <h1>这是Demo</h1>
-      <img src={avatar} alt="" />
+      <Item />
+
+      <Button onClick={() => navigate('/demo?query=xxx')}>点击切换路由</Button>
     </>
   )
 }

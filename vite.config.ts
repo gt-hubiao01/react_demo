@@ -1,6 +1,7 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import path from 'path'
+import { reactVirtualized } from './vitePlugins/reactVirtualized';
 
 function resolve(pathname: string) {
   return path.join(__dirname, pathname)
@@ -20,7 +21,7 @@ export default defineConfig({
       },
     ],
   },
-  plugins: [react()],
+  plugins: [react(), reactVirtualized()],
   server: {
     host: true,
     port: 8888, // 开发环境启动的端口
