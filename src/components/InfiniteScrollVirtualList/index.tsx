@@ -56,6 +56,25 @@ const InfiniteScrollVirtualList = ({
     })
   )
 
+  const [showTopShadow, setShowTopShadow] = React.useState(false)
+  const [showBottomShadow, setShowBottomShadow] = React.useState(false)
+
+  const handleScroll = () => {
+    const container = scrollerContainer.current
+
+    if (!container) return
+
+    const maxScrollHeight = container.scrollHeight - container.clientHeight
+    setShowTopShadow(container.scrollTop > 0)
+    setShowBottomShadow(container.scrollTop < maxScrollHeight)
+  }
+
+  useEffect(() => {
+    setTimeout(() => {
+      handleScroll()
+    }, 0)
+  }, [data])
+
   const rowRenderer = ({
     index,
     key,
@@ -90,35 +109,50 @@ const InfiniteScrollVirtualList = ({
   }
 
   return (
-    <div className={styles.infiniteScrollVList} ref={scrollerContainer}>
-      <WindowScroller
-        onScroll={onScroll}
-        scrollElement={(scrollerContainer.current as HTMLElement) || undefined}
-      >
-        {({ height, scrollTop, isScrolling }) => (
-          <List className={styles.antMobileList}>
-            <AutoSizer disableHeight>
-              {({ width }) => (
-                <VirtualizedList
-                  autoHeight
-                  deferredMeasurementCache={cache.current}
-                  height={height}
-                  isScrolling={isScrolling}
-                  overscanRowCount={overscanRowCount || 10}
-                  rowCount={data.length}
-                  rowHeight={cache.current.rowHeight}
-                  rowRenderer={rowRenderer}
-                  scrollTop={scrollTop}
-                  width={width}
-                />
-              )}
-            </AutoSizer>
-          </List>
-        )}
-      </WindowScroller>
-      <InfiniteScroll hasMore={hasMore} loadMore={loadMore}>
-        {loadingMoreTip}
-      </InfiniteScroll>
+    <div className={styles.vListContainer}>
+      <div
+        className={`${styles.shadow} ${showTopShadow ? styles.topShadow : ''}`}
+      />
+      <div className={styles.infiniteScrollVList} ref={scrollerContainer}>
+        <WindowScroller
+          onScroll={(props) => {
+            handleScroll()
+            onScroll && onScroll(props)
+          }}
+          scrollElement={
+            (scrollerContainer.current as HTMLElement) || undefined
+          }
+        >
+          {({ height, scrollTop, isScrolling }) => (
+            <List className={styles.antMobileList}>
+              <AutoSizer disableHeight>
+                {({ width }) => (
+                  <VirtualizedList
+                    autoHeight
+                    deferredMeasurementCache={cache.current}
+                    height={height}
+                    isScrolling={isScrolling}
+                    overscanRowCount={overscanRowCount || 10}
+                    rowCount={data.length}
+                    rowHeight={cache.current.rowHeight}
+                    rowRenderer={rowRenderer}
+                    scrollTop={scrollTop}
+                    width={width}
+                  />
+                )}
+              </AutoSizer>
+            </List>
+          )}
+        </WindowScroller>
+        <InfiniteScroll hasMore={hasMore} loadMore={loadMore}>
+          {loadingMoreTip}
+        </InfiniteScroll>
+      </div>
+      <div
+        className={`${styles.shadow} ${
+          showBottomShadow ? styles.bottomShadow : ''
+        }`}
+      />
     </div>
   )
 }

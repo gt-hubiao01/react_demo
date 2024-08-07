@@ -1,29 +1,63 @@
-.infinite-scroll-v-list {
+.v-list-container {
   position: relative;
   width: 100%;
   height: 100%;
-  overflow-y: auto;
 
-  .ant-mobile-list {
-    --border-bottom: 0px;
-    --border-inner: 0px;
-    --border-top: 0px;
+  .shadow {
+    width: 100%;
+    height: 12px;
+    left: 0;
+    right: 0;
+    visibility: hidden;
+    opacity: 0;
+    position: absolute;
+    transition: all 0.3s;
+  }
 
-    :global {
-      .adm-list-item {
-        padding: 0;
+  .top-shadow {
+    visibility: visible;
+    opacity: 0.5;
+    top: 0;
+    z-index: 999;
+    background: linear-gradient(180deg, #38333360 0%, #ffffff60 100%);
+  }
 
-        .adm-list-item-content {
+  .bottom-shadow {
+    visibility: visible;
+    opacity: 0.5;
+    bottom: 0;
+    background: linear-gradient(0deg, #38333360 0%, #ffffff60 100%);
+  }
+
+  .infinite-scroll-v-list {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    overflow-y: auto;
+  
+    .ant-mobile-list {
+      --border-bottom: 0px;
+      --border-inner: 0px;
+      --border-top: 0px;
+  
+      :global {
+        .adm-list-item {
           padding: 0;
-
-          .adm-list-item-content-main {
+  
+          .adm-list-item-content {
             padding: 0;
+  
+            .adm-list-item-content-main {
+              padding: 0;
+            }
           }
         }
       }
     }
   }
+  
 }
+
 
 .loading-more-tip {
   width: 100%;

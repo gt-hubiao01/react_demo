@@ -1,21 +1,15 @@
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
-import HomePage from '@/pages/HomePage'
-import EchartsDemo from '@/pages/EchartsDemo'
-import TreeChartDemo from '@/pages/TreeChartDemo'
-import ThreeJsDemo from './pages/ThreeJsDemo'
-import TfjsDemo from './pages/TfjsDemo'
-import Demo from './pages/Demo'
+import route from './route'
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<HomePage />} />
-        <Route path="/echarts" element={<EchartsDemo />} />
-        <Route path="/treeChart" element={<TreeChartDemo />} />
-        <Route path="/threejs" element={<ThreeJsDemo />} />
-        <Route path="/tfjs" element={<TfjsDemo />} />
-        <Route path="/demo/*" element={<Demo />} />
+        {
+          route.map((item) => (
+            <Route key={item.path} path={item.path} element={item.component} />
+          ))
+        }
       </Routes>
     </BrowserRouter>
   )

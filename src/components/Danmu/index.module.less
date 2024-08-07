@@ -1,0 +1,51 @@
+.danmuContainer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  overflow: hidden;
+  background: transparent;
+  z-index: 99999;
+
+  .danmuItem {
+    width: fit-content;
+    height: fit-content;
+    position: absolute;
+    right: -100%;
+    white-space: nowrap;
+    background: transparent;
+  }
+}
+
+.itemOuter {
+  padding: 5px 10px 5px 6px;
+  border-radius: 5px 0 0 22px;
+  background: linear-gradient(
+    90deg,
+    rgba(var(--item-color-r), var(--item-color-g), var(--item-color-b), 0.4) 0%,
+    rgba(var(--item-color-r), var(--item-color-g), var(--item-color-b), 0.15)
+      100%
+  );
+
+  .itemInner {
+    padding: 4px 20px 6px;
+    border-radius: 4px 0 0 20px;
+    background: linear-gradient(
+      90deg,
+      rgba(var(--item-color-r), var(--item-color-g), var(--item-color-b), 0.77)
+        0%,
+      rgba(var(--item-color-r), var(--item-color-g), var(--item-color-b), 0)
+        100%
+    );
+
+    color: #fff;
+    text-shadow: 0px 1.683px 2.48px rgba(168, 23, 23, 0.61);
+    font-family: 'Yuanti SC';
+    font-size: 17px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: normal;
+  }
+}
