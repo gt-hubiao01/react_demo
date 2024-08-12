@@ -1,0 +1,1 @@
+const fetchTimeUrl = '/taobao_m_api/rest/api3.do?api=mtop.common.getTimestamp'

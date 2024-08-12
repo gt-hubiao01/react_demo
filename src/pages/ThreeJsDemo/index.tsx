@@ -1,10 +1,10 @@
 import { useEffect } from 'react'
-import { createWorld } from './components/test_demo'
+import { createGalaxy } from './components/galaxy'
 
 export default function ThreeJsDemo() {
   useEffect(() => {
-    createWorld()
+    createGalaxy()
   }, [])
 
-  return <div id="retina"></div>
+  return <div id="app"></div>
 }

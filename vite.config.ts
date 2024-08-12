@@ -25,5 +25,12 @@ export default defineConfig({
   server: {
     host: true,
     port: 8888, // 开发环境启动的端口
+    proxy: {
+      '/taobao_m_api': {
+        target: 'http://api.m.taobao.com',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/taobao_m_api/, ''),
+      }
+    }
   },
 })

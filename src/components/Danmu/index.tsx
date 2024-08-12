@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import styles from './index.module.less'
-import gsap from 'gsap'
+import { gsap } from 'gsap'
 import DanmuItem from './DanmuItem'
 
 type DanmuItemType = typeof DanmuItem
@@ -12,10 +12,17 @@ interface IProps {
   Item?: DanmuItemType
   speed?: number
   density?: number
+  itemHeight?: number
 }
 
 const Danmu = (props: IProps) => {
-  const { messages, Item = DanmuItem, speed = 1, density = 1 } = props
+  const {
+    messages,
+    Item = DanmuItem,
+    speed = 1,
+    density = 1,
+    itemHeight = 44,
+  } = props
 
   const [danmus, setDanmus] = useState<DanmuType[]>([])
   const containerRef = useRef<HTMLDivElement>(null)
@@ -40,12 +47,12 @@ const Danmu = (props: IProps) => {
           ? accMessages.slice(-noWrapCount.current).map((item) => item.top)
           : accMessages.map((item) => item.top)
 
-
       do {
-        top = Math.random() * (containerRef.current!.clientHeight - 20)
+        top = Math.random() * (containerRef.current!.clientHeight - itemHeight)
       } while (
         existingTops.some(
-          (existingTop) => Math.abs(existingTop - top) < 20 && count++ < 10
+          (existingTop) =>
+            Math.abs(existingTop - top) < itemHeight / 2 && count++ < 10
         )
       )
 
@@ -58,25 +65,27 @@ const Danmu = (props: IProps) => {
     }, [] as DanmuType[])
 
     setDanmus(newMessages)
-  }, [messages])
+  }, [itemHeight, messages])
 
   useEffect(() => {
-    const tl = gsap.timeline()
-    tl.to(`.${styles.danmuItem}`, {
-      right: '100%',
-      stagger: (1 / density) / 5,
-      duration: (1 / speed) * 5,
-      ease: 'linear',
-    })
-  }, [danmus])
+    if (danmus.length > 0) {
+      const tl = gsap.timeline()
+      tl.to(`.${styles.danmuItem}`, {
+        right: '100%',
+        stagger: 1 / density / 5,
+        duration: (1 / speed) * 5,
+        ease: 'linear',
+      })
+    }
+  }, [danmus, density, speed])
 
   return (
     <div className={styles.danmuContainer} ref={containerRef}>
       {danmus.map((danmu) => (
         <div
-          key={danmu.id}
-          id='danmuItem'
           className={styles.danmuItem}
+          id="danmuItem"
+          key={danmu.id}
           style={{ top: danmu.top }}
         >
           <Item message={danmu.message} />
