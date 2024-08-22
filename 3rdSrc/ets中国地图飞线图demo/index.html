@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>echarts-飞线图</title>
+  <script src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+  <script src="https://lf26-cdn-tos.bytecdntp.com/cdn/expire-1-M/echarts/5.3.0-rc.1/echarts.min.js"></script>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: #100C2A;
+    }
+  </style>
+
+</head>
+
+<body>
+  <div id="chart" style="width: 100%; height: 1000px;"></div>
+  <script>
+    var jsonData;
+    function getJson (data) {
+      jsonData = data
+    }
+  </script>
+  <script type="text/javascript" src="./json/geojson.json"></script>
+  <script src="./js/china.js"></script>
+  <script>
+    var chartDom = document.getElementById('chart');
+    var myChart = echarts.init(chartDom);
+    var option;
+    option = {
+      // backgroundColor: "#060E35",
+      geo: [
+        {
+          map: "china",
+          zoom: 1,
+          // aspectScale: 1, // 横向拉伸
+          layoutCenter: ["50%", "50%"], // 位置
+          layoutSize: "80%", // 大小
+          label: {
+            show: true,
+            normal: {
+              show: false, // 默认地图文字字号和字体颜色
+              fontSize: 12,
+              color: "#ffffff",
+            },
+            emphasis: {
+              show: true,
+              fontSize: 12, // 选中地图文字字号和字体颜色
+              offset: [0, -20],
+              color: "#ffffff",
+            },
+          },
+          itemStyle: {
+            normal: {
+              areaColor: {
+                type: "linear",
+                x: 1000,
+                y: 0,
+                x2: 0,
+                y2: 0,
+                colorStops: [
+                  {
+                    offset: 0,
+                    color: "rgba(3,27,78,0.75)", // 0% 处的颜色
+                  },
+                  {
+                    offset: 1,
+                    color: "rgba(58,149,253,0.75)", // 50% 处的颜色
+                  },
+                ],
+                global: true, // 缺省为 false
+              },
+              borderColor: "#c0f3fb",
+              borderWidth: 1,
+              shadowColor: "#8cd3ef",
+              shadowOffsetY: 10,
+              shadowBlur: 120,
+            },
+            emphasis: {
+              areaColor: "rgba(0,254,233,0.6)",
+              // borderWidth: 0
+            },
+          },
+          textFixed: {
+            Alaska: [20, -20],
+          },
+        },
+      ],
+      series: [
+        {
+          type: "effectScatter",
+          coordinateSystem: "geo",
+          symbolSize: 8,
+          rippleEffect: {
+            number: 1,
+            scale: 3,
+            brushType: "stroke",
+          },
+          itemStyle: {
+            color: "#E6A23C",
+          },
+          data: [],
+        },
+        {
+          type: "effectScatter",
+          zlevel: 3,
+          coordinateSystem: "geo",
+          symbolSize: 10,
+          rippleEffect: {
+            number: 1,
+            scale: 8,
+            brushType: "stroke",
+          },
+          itemStyle: {
+            color: "#F56C6C",
+          },
+          data: [],
+        },
+        {
+          type: "lines",
+          zlevel: 2,
+          effect: {
+            show: true,
+            symbolSize: 1,
+            color: "#E4AA0C",
+            symbol: "line",
+          },
+          lineStyle: {
+            color: "#F56828",
+            width: 0, // 线条宽度
+            curveness: 0.3,
+            type: "solid",
+          },
+          data: [],
+        },
+      ],
+    }
+    option.series[0].data = jsonData.features.map(function (item) {
+      if (item.properties.name === "北京市") {
+        return {
+          label: { name: "" },
+          value: [],
+        };
+      }
+      return {
+        label: { name: item.properties.name },
+        value: item.properties.centroid,
+      };
+    });
+    option.series[1].data = jsonData.features.map(function (item) {
+      if (item.properties.name === "北京市") {
+        return {
+          label: { name: item.properties.name },
+          value: item.properties.centroid,
+        };
+      }
+    });
+    option.series[2].data = jsonData.features.map(function (item) {
+      return {
+        coords: [
+          item.properties.centroid ? item.properties.centroid : [], // 初始点经纬度
+          [116.41995, 40.18994], // 目标点经纬度
+        ],
+        label: {
+          start: item.properties.name,
+          end: "北京",
+        },
+      };
+    });
+    option && myChart.setOption(option);
+  </script>
+
+</body>
+
+</html>

@@ -1,0 +1,74 @@
+ 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        *{
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body{
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: rgb(0, 0, 0);
+            overflow: hidden;
+        }
+        .text{
+            position: relative;
+            width: 700px;
+            text-indent: 2em;
+            color: rgb(255, 255, 255);
+            font-size: 18px;
+            cursor: pointer;
+            user-select: none;
+            text-align: justify;           
+        }
+        .text span{
+            position: relative;
+            display: inline-block;
+            transform-origin: bottom;
+            text-indent: 0;
+        }
+        .text .move{        
+            animation: up 2s linear forwards;
+        }
+        @keyframes up{
+            100%{
+                opacity: 0;
+                filter: blur(20px);
+                transform: translate(600px,-500px) rotate(360deg) scale(5);
+            }
+        }
+    </style>
+</head>
+<body>
+    <p class="text">
+        《一个青年艺术家的画像》中的主人公斯蒂芬·迪达勒斯很大程度上象征着乔伊斯自己。
+        所有作品中，《一个青年艺术家的画像》作为乔伊斯自传性的小说以其独特和高超的艺术手法而受人推崇。
+        小说中的很多细节取材于乔伊斯的早期生活，主人公斯蒂芬·迪达勒斯与乔伊斯的早年经历一样，在孤独中成长，
+        最终走向献身艺术的征程。孤独，作为伟人和天才的通病，却恰是艺术家成功的基石。“孤独是本真的心灵存在，
+        这是真正艺术生活的根本条件”。
+    </p>
+    <script>
+        var txt = document.querySelector(".text");
+        txt.innerHTML = txt.textContent.replace(/\S/g,"<span>$&</span>");
+
+        var arr = document.querySelectorAll("span");
+        arr.forEach(function(temp){
+            temp.addEventListener('mouseover',()=>{
+                temp.classList.add('move');
+                console.log('666');
+            })
+        }) 
+
+            
+    </script>
+</body>
+</html>

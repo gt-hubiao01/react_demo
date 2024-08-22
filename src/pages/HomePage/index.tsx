@@ -1,24 +1,24 @@
 import styles from './index.module.less'
 import { Button } from 'antd'
 import { useNavigate } from 'react-router-dom'
+import route from '@/route'
 
 function HomePage() {
   const navigate = useNavigate()
 
+  const newRoute = route.filter((item) => item.path !== '/')
+
   return (
     <div className={styles.homePageContainer}>
-      <Button type="primary" onClick={() => navigate('/demo')}>
-        Demo
-      </Button>
-      <Button type="primary" onClick={() => navigate('/echarts')}>
-        Echarts Demo
-      </Button>
-      <Button type="primary" onClick={() => navigate('/treeChart')}>
-        TreeChart Demo
-      </Button>
-      <Button type="primary" onClick={() => navigate('/tfjs')}>
-        TfjsDemo
-      </Button>
+      {newRoute.map((item) => (
+        <Button
+          key={item.path}
+          type="primary"
+          onClick={() => navigate(item.path)}
+        >
+          {item.name || item.path.replace('/', '')}
+        </Button>
+      ))}
     </div>
   )
 }

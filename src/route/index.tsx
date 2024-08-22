@@ -3,12 +3,12 @@ import EchartsDemo from '@/pages/EchartsDemo'
 import TreeChartDemo from '@/pages/TreeChartDemo'
 import ThreeJsDemo from '@/pages/ThreeJsDemo'
 import TfjsDemo from '@/pages/TfjsDemo'
-import BirthdayBless from '@/pages/BirthdayBless'
 import Demo from '@/pages/Demo'
 
 type RouteType = {
   path: string
   component: React.ReactNode
+  name?: string
 }
 
 const route: RouteType[] = [
@@ -33,11 +33,7 @@ const route: RouteType[] = [
     component: <TfjsDemo />,
   },
   {
-    path: '/birthdayBless',
-    component: <BirthdayBless />,
-  },
-  {
-    path: '/demo/*',
+    path: '/demo',
     component: <Demo />,
   },
 ]

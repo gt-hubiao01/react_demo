@@ -1,5 +1,6 @@
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import route from './route'
+import './App.less'
 
 function App() {
   return (
