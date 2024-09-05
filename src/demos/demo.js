@@ -1,12 +1,4 @@
-const targetObject = {
-  name: 'Alice',
-  get uppercaseName() {
-    return this.name.toUpperCase();
-  }
-};
+const reg = /\s*([-\+]?[0-9]*).*/
 
-const receiverObject = {
-  name: 'Bob'
-};
-
-console.log(Reflect.get(targetObject, 'uppercaseName', receiverObject)); // 输出: BOB
+const  str = '  -42dsa'
+const groups = str.match(reg)
